@@ -19,6 +19,7 @@ from vllm.entrypoints.pooling.utils import enable_scoring_api
 from vllm.entrypoints.serve.instrumentator.basic import base
 from vllm.entrypoints.serve.instrumentator.health import health
 from vllm.tasks import POOLING_TASKS, SupportedTask
+from vllm.tracing import instrument
 
 # TODO: RequestType = TypeForm[BaseModel] when recognized by type checkers
 # (requires typing_extensions >= 4.13)
@@ -118,6 +119,7 @@ def attach_router(
     @router.post("/ping", response_class=Response)
     @router.get("/ping", response_class=Response)
     @sagemaker_standards.register_ping_handler
+    @instrument(span_name="GET /ping")
     async def ping(raw_request: Request) -> Response:
         """Ping check. Endpoint required for SageMaker"""
         return await health(raw_request)
